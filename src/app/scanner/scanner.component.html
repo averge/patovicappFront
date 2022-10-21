@@ -1,0 +1,25 @@
+<div  mat-dialog-content style="width: 100%;">
+    <mat-card style="width: 100%;">
+        <button (click)="cancelar()" style="float: right;" mat-button >X</button>
+        <mat-card-header>
+            <mat-card-title>Scannear DNI</mat-card-title>
+        </mat-card-header>
+        <mat-card-content >
+
+<select #selectList (change)="selectCamera(selectList.value)">
+    <option *ngFor="let camera of cameras" value={{camera.label}}>
+      {{ camera.label }}
+    </option>
+  </select>
+  
+  <zxing-scanner style="width: 90%;"
+                  [formats]="formats"
+  [enable]="scannerEnabled"
+    [device]="myDevice"
+    (camerasFound)="camerasFoundHandler($event)"
+    (scanSuccess)="scanSuccessHandler($event)"
+  ></zxing-scanner>
+
+</mat-card-content>
+</mat-card>
+</div>

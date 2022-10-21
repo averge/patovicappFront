@@ -1,0 +1,108 @@
+<header> PATOVICAPP</header>
+<!--
+<zxing-scanner style="width: 500px;"
+                [formats]="formats"
+[enable]="scannerEnabled"
+  [device]="myDevice"
+
+  (camerasFound)="camerasFoundHandler($event)"
+  (scanSuccess)="scanSuccessHandler($event)"
+></zxing-scanner>
+-->
+<form [formGroup]="nuevaPersona" >
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Nombre</mat-label>
+    <input matInput placeholder="Enter your name" name="usename" formControlName="nombre">
+    <mat-error>
+      <span *ngIf="nuevaPersona.controls['nombre'].hasError('required')">
+        El Nombre es obligatorio
+      </span>
+    </mat-error>
+  </mat-form-field>
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>DNI</mat-label>
+    <input matInput (keyup)="verificaNumero()" formControlName="dni" type="text" placeholder="inserte dni" name="dni" />
+  <mat-error>
+    <span *ngIf="nuevaPersona.controls['dni'].hasError('required')">
+      El dni es requerido
+    </span>
+    <span *ngIf="nuevaPersona.controls['dni'].hasError('minlength')">
+      El dni debe tener 8 digitos
+    </span>
+    <span *ngIf="nuevaPersona.controls['dni'].hasError('maxlength')">
+      El dni debe tener 8 digitos
+    </span>
+  </mat-error>
+  </mat-form-field>
+  <button mat-raised-button color="primary" [disabled]="!nuevaPersona.valid" (click)="agregarDni()">
+    Agregar persona
+  </button>
+
+</form>
+<!--
+<form>
+  <label>dni</label>
+  <input (keyup)="verificaNumero()" type="text" placeholder="inserte dni" [(ngModel)]="dni" name="result" />
+  <label>nombre</label>
+
+  <input (keyup)="verificaNombre()" type="text" [(ngModel)]="nombre" placeholder="inserte nombre" name="nombre" />
+<button mat-raised-button color="green" [disabled]="!validoDni && !validoNombre" (click)="agregarDni()">
+  Agregar persona
+</button>
+</form>
+-->
+<!--<p *ngFor="let result of results">{{result}}</p>
+<p *ngFor="let result of ListadoDni">{{result}}</p>
+-->
+<label>
+  Inserte documento .csv para cargar la tabla de personas formato: nombre,dni
+</label>
+<br>
+<input type="file" accept=".csv" (change)="csv2Array($event)">
+<br>
+<div *ngIf="ListadoDni.length>0">
+<form>
+  <mat-form-field class="example-full-width" appearance="outline">
+    <mat-label>Buscar</mat-label>
+    <input matInput (keyup)="buscar()" placeholder="Buscar por nombre o dni" [formControl]="buscarValue">
+  </mat-form-field>
+</form>
+
+<table >
+  <tr>
+    <th>Nombre</th>
+    <th>DNI</th>
+    <th>Scaneado</th>
+  </tr>
+  <tr *ngFor="let result of ListadoDnivalid; let i = index">
+    <td>{{result.nombre}}</td>
+    <td>{{result.dni}}</td>
+    <div *ngIf="result.scaneado">
+    <td style="background-color: rgb(9, 255, 9) ;"></td>
+  </div><div *ngIf="!result.scaneado">
+    <td style="background-color: red ;"></td>
+  </div>
+  <td><button (click)="ListadoDni.splice(i,1);ListadoDni=ListadoDnivalid">eliminar</button></td>
+  </tr>
+</table>
+<!--
+<table *ngIf="arr.length>0">
+  <tr>
+    <th>DNI</th>
+    <th>Nombre</th>
+    <th>Scaneado</th>
+  </tr>
+  <tr *ngFor="let result of arr; let i = index">
+    <td>{{result[1]}}</td>
+    <td>{{result[0]}}</td>
+    <div *ngIf="result[2]">
+      <td style="background-color: rgb(9, 255, 9) ;"></td>
+    </div><div *ngIf="!result[2]">
+      <td style="background-color: red ;"></td>
+    </div>
+  <td><button (click)="arr.splice(i,1)">eliminar</button></td>
+  </tr>
+</table>
+-->
+<button mat-raised-button color="primary"  (click)="scannear()">Scannear</button>
+</div>
