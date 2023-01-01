@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { BarcodeFormat } from '@zxing/library';
 import { EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ScannerComponent } from './scanner/scanner.component';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-
-
+import { ListadoService } from 'src/services/listado.service';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator} from '@angular/material/paginator';
+import { NuevaPersonaComponent } from './nueva-persona/nueva-persona.component';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +17,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 })
 export class AppComponent {
   ListadoDni: any[] = []
+  dataSource:any
   //[{dni:"40476372", nombre:"Augusto", scaneado:false},{dni:"40676855", nombre:"Pedro", scaneado:false},{dni:"39786141", nombre:"Fede", scaneado:false},{dni:"39963623", nombre:"Willi", scaneado:false},{dni:"41006154", nombre:"Loren", scaneado:false}];
   ListadoDnivalid: any[]  = [];
   nuevaPersona = new FormGroup(
@@ -27,11 +31,14 @@ export class AppComponent {
   dni:any;
   nombre=null
   public buscarValue: FormControl = new FormControl(null);
-  public activas: FormControl = new FormControl(false);
+  public escaneados: FormControl = new FormControl("todas");
   public formats = [BarcodeFormat.CODE_128, BarcodeFormat.EAN_8, BarcodeFormat.EAN_13, BarcodeFormat.QR_CODE, BarcodeFormat.PDF_417];
 
 
-  constructor( public dialog: MatDialog) {}
+  constructor(private cdr: ChangeDetectorRef,private servicio: ListadoService, public dialog: MatDialog) {}
+  displayedColumns: string[] = ['nombre', 'dni', 'eliminar'];       
+  @ViewChild(MatSort, {static: false}) sort!: MatSort;  
+  @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
    /*  navigator.mediaDevices.enumerateDevices().then((devices) => {
       for (var i = 0; i < devices.length; i++) {
         var device = devices[i];
@@ -62,17 +69,27 @@ export class AppComponent {
     
   }
 */
+ngOnInit() {
+  this.test();
+}
+/*
   agregarDni(){
     if(this.ListadoDni.find(person => person.dni === this.nuevaPersona.controls['dni'].value)){
       alert("DNI ya registrado");
     }else{
-    this.ListadoDni.push({dni:this.nuevaPersona.controls['dni'].value, nombre:this.nuevaPersona.controls['nombre'].value, scaneado:false});
-    this.arr.push([this.nuevaPersona.controls['nombre'].value, this.nuevaPersona.controls['dni'].value, false]);
-    this.nuevaPersona.reset();
-    this.ListadoDnivalid = this.ListadoDni;
+      const persona={
+        nombre: this.nuevaPersona.controls['nombre'].value,
+        dni: this.nuevaPersona.controls['dni'].value
+      }
+      this.ListadoDni.push({dni:this.nuevaPersona.controls['dni'].value, nombre:this.nuevaPersona.controls['nombre'].value, scaneado:false});
+      this.arr.push([this.nuevaPersona.controls['nombre'].value, this.nuevaPersona.controls['dni'].value, false]);
+      this.nuevaPersona.reset();
+      this.ListadoDnivalid = this.ListadoDni;
+      console.log(persona)
+      this.servicio.agregarPersona(persona).subscribe()
     }
   }
-
+*/
   verificaNombre(){
     this.validoNombre=false
     if(this.nombre!=null || this.nombre!=""){
@@ -83,16 +100,7 @@ export class AppComponent {
   verificaNumero(){
     this.nuevaPersona.controls['dni'].setValue(this.nuevaPersona.controls['dni'].value.replace(/\D/g, ""))
   }
-/*
-  selectCamera(cameraLabel: string){    
-    this.cameras.forEach(camera=>{
-      if(camera.label.includes(cameraLabel)){
-        this.myDevice=camera;
-        console.log(camera.label);
-        this.scannerEnabled=true;
-      }
-    })    
-  }*/
+
 
   scannear(){
   const dialogRef = this.dialog.open(ScannerComponent, {
@@ -100,21 +108,31 @@ export class AppComponent {
     panelClass: 'js-dialog',  data: {}   
   });
   dialogRef.afterClosed().subscribe(result => {
+    console.log(result)
     if (!result === true ) return;
-    console.log(result);
-    if (this.ListadoDni.find(person => person.dni === result)) {
-      this.ListadoDni[this.ListadoDni.findIndex(e => e.dni === result)].scaneado = true; 
-    }
-    if(this.arr.find(person => person[1] === result)){
-      console.log("ya esta");
-      this.arr[this.arr.findIndex(e => e[1] === result)][2] = true;
-    }
-    console.log(this.ListadoDni);
-    //this.pageLenght=this.ejerciciosValid.length;
-    //this.ejerciciosValid=this.ejerciciosValid.slice(0,this.pageSize)
+      const dni = {dni : result}
+      this.servicio.scanPersona(dni).subscribe(
+        (res:any) => {
+          if(res == 1){
+            alert("DNI ya registrado");
+          }else{
+            alert("DNI escaneado correctamente")
+            this.test()
+          }
+        }
+      )
   } );
 }
+applyFilter() {
+  this.dataSource.filter = this.buscarValue.value.trim().toLowerCase();
+  this.cdr.detectChanges();
+      this.dataSource.paginator = this.paginator
+      this.dataSource.sort = this.sort;
+  if (this.dataSource.paginator) {
+    this.dataSource.paginator.firstPage();
+  }
 
+}
 buscar(){
   let isnum = /^\d+$/.test(this.buscarValue.value);
   if(isnum){
@@ -126,6 +144,27 @@ buscar(){
 
 eliminar(){
   this.ListadoDni.splice(0,1);
+}
+eliminarPersona(persona:any){
+  if(confirm(
+    "¿Está seguro que desea eliminar a " + persona.nombre + "?"
+  )){
+    const dni={
+      dni: persona.dni
+    }
+    this.servicio.eliminarPersona(dni).subscribe(
+      (res:any) => {
+        console.log(res)
+        console.log("eliminado correctamente")
+        alert ("eliminado correctamente")
+        this.test()
+      }
+    )
+    
+  }
+  
+
+  
 }
 
 
@@ -140,7 +179,7 @@ csv2Array(fileInput: any){
    let csv: any = reader.result;
    let allTextLines = csv.split(/\r|\n|\r/);
    let headers = allTextLines[0].split(',');
-   let lines = [];
+
   
     for (let i = 1; i < allTextLines.length; i++) {
       // split content based on comma
@@ -162,8 +201,17 @@ csv2Array(fileInput: any){
         tarr.push(false)
   */
        // log each row to see output 
-       console.log(tarr);
-       lines.push(tarr);
+       var repetidos: any[] =[]
+       this.servicio.agregarPersona(tarr).subscribe(
+        (res:any) => {
+          if(res==0){
+            this.test()
+            alert("Personas agregadas")
+          }else{
+            this.arr.push(res)
+          }
+        }
+       )
     }
    }
    if (error!=""){
@@ -171,9 +219,7 @@ csv2Array(fileInput: any){
      fileInput.target.value = null
    }else{
    // all rows in the csv file 
-   console.log(">>>>>>>>>>>>>>>>>", lines);
    // this.arr=lines;
-    this.ListadoDni=lines;
     this.ListadoDnivalid=this.ListadoDni;
   }
   } 
@@ -219,4 +265,50 @@ const convertFile = () => {
   };
   reader.readAsText(input.files[0]);
 };*/
+test(){
+  this.servicio.listado().subscribe((data:any)=>{
+
+    this.ListadoDni=data;
+    this.dataSource = new MatTableDataSource(this.ListadoDni);
+    this.cdr.detectChanges();
+      this.dataSource.paginator = this.paginator
+      this.dataSource.sort = this.sort;
+  }
+  )
+
+}
+
+agregarPersona(){
+  const dialogRef = this.dialog.open(NuevaPersonaComponent, {
+    disableClose: true,
+    panelClass: 'js-dialog',  data: {}   
+  });
+  dialogRef.afterClosed().subscribe(result => {
+    console.log(result)
+    if (!result === true ) return;
+    if (result){
+      alert("nueva persona agregada")
+      this.test()
+    }
+}
+  )}
+
+
+  filtroEscaneadas(){
+    if(this.escaneados.value=="todas"){
+      this.dataSource.data=this.ListadoDni
+    }
+    if(this.escaneados.value=="escaneados"){
+      this.dataSource.data = this.ListadoDni.filter((person:any) => person.scan==1)
+    }
+    if(this.escaneados.value=="sin_escanear"){
+      this.dataSource.data = this.ListadoDni.filter((person:any) => person.scan==0)
+    }
+        this.cdr.detectChanges();
+        this.dataSource.paginator = this.paginator
+        this.dataSource.sort = this.sort;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
 }

@@ -2,7 +2,7 @@ import { BarcodeFormat } from '@zxing/library';
 import { Component, Inject, OnInit, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-
+import { ListadoService } from 'src/services/listado.service';
 
 @Component({
   selector: 'app-scanner',
@@ -20,7 +20,7 @@ export class ScannerComponent implements OnInit {
   public activas: FormControl = new FormControl(false);
   public formats = [BarcodeFormat.CODE_128, BarcodeFormat.EAN_8, BarcodeFormat.EAN_13, BarcodeFormat.QR_CODE, BarcodeFormat.PDF_417];
 
-  constructor(public dialogRef: MatDialogRef<ScannerComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
+  constructor(private servicio: ListadoService,public dialogRef: MatDialogRef<ScannerComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit(): void {
   }
@@ -28,19 +28,16 @@ export class ScannerComponent implements OnInit {
   camerasFoundHandler(cameras: MediaDeviceInfo[]){
     this.cameras=cameras;
     this.selectCamera(this.cameras[0].label);
-    console.log(this.cameras);
   }
 
   cancelar(){
     this.dialogRef.close();
   }
   scanSuccessHandler(event:string){
-    console.log(event);
+
     //this.results.unshift(event);
     const temp=event.split(/[@]/)
-    console.log(event.split(/[@]/));
     this.results.unshift(temp[2]);
-    alert("Vamos " + temp[2] + " " + temp[1] + " con DNI " + temp[4] + " el patovicapp te acepta a la pary");
     this.dialogRef.close(temp[4]);
     
   }
@@ -69,6 +66,6 @@ export class ScannerComponent implements OnInit {
       }
     })    
   }
-
-
+ 
+ 
 }

@@ -1,4 +1,7 @@
 <header> PATOVICAPP</header>
+<!--<button (click)="test()">jkfdsñfjals</button>-->
+<button mat-raised-button color="primary" (click)="agregarPersona()">Agregar Persona</button>
+<br>
 <!--
 <zxing-scanner style="width: 500px;"
                 [formats]="formats"
@@ -8,7 +11,7 @@
   (camerasFound)="camerasFoundHandler($event)"
   (scanSuccess)="scanSuccessHandler($event)"
 ></zxing-scanner>
--->
+
 <form [formGroup]="nuevaPersona" >
   <mat-form-field class="example-full-width" appearance="fill">
     <mat-label>Nombre</mat-label>
@@ -39,6 +42,7 @@
   </button>
 
 </form>
+-->
 <!--
 <form>
   <label>dni</label>
@@ -60,15 +64,60 @@
 <br>
 <input type="file" accept=".csv" (change)="csv2Array($event)">
 <br>
+<div *ngIf="arr.length>0">
+  <h2>
+    Listado de personas que no se pudieron agregar por estar repetidos
+  </h2>
+<table style="width: 30%;">
+  <tr>
+    <th>Nombre</th>
+    <th>DNI</th>
+  </tr>
+  <tr *ngFor="let persona of arr; let i = index">
+    <td>{{persona.nombre}}</td>
+    <td>{{persona.dni}}</td>
+    <td><button (click)="arr.splice(i,1)" >✅</button></td>
+  </tr>
+</table>
+</div>
 <div *ngIf="ListadoDni.length>0">
+  <div align="center">
 <form>
   <mat-form-field class="example-full-width" appearance="outline">
     <mat-label>Buscar</mat-label>
-    <input matInput (keyup)="buscar()" placeholder="Buscar por nombre o dni" [formControl]="buscarValue">
+    <input matInput (keyup)="applyFilter()" placeholder="Buscar por nombre o dni" [formControl]="buscarValue">
+  </mat-form-field>
+
+  <mat-form-field class="example-full-width">
+    <mat-label>Filtro</mat-label>
+    <mat-select (selectionChange)="filtroEscaneadas()" [formControl]="escaneados">
+      <mat-option value="todas">Todas</mat-option>
+      <mat-option value="escaneados">Solo escaneados</mat-option>
+      <mat-option value="sin_escanear">Solo sin escaneados</mat-option>
+    </mat-select>
   </mat-form-field>
 </form>
+</div>
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  <ng-container matColumnDef="nombre">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+    <td mat-cell *matCellDef="let persona"> {{persona.nombre}} </td>
+</ng-container> 
+<ng-container matColumnDef="dni">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> DNI </th>
+  <td mat-cell *matCellDef="let persona"> {{persona.dni}} </td>
+</ng-container> 
+<ng-container matColumnDef="eliminar">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> Eliminar </th>
+  <td mat-cell *matCellDef="let persona"><button mat-raised-button color="warn" (click)="eliminarPersona(persona)">eliminar</button> </td>
+</ng-container> 
 
-<table >
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row [ngClass]="{'scaneado': row.scan == 1}" *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table> 
+  <mat-paginator  [pageSizeOptions]="[10, 20, 30]"  showFirstLastButtons  aria-label="select">  </mat-paginator>  
+  <!--
+<table>
   <tr>
     <th>Nombre</th>
     <th>DNI</th>
@@ -77,14 +126,16 @@
   <tr *ngFor="let result of ListadoDnivalid; let i = index">
     <td>{{result.nombre}}</td>
     <td>{{result.dni}}</td>
-    <div *ngIf="result.scaneado">
+    <div *ngIf="result.scan==1">
     <td style="background-color: rgb(9, 255, 9) ;"></td>
-  </div><div *ngIf="!result.scaneado">
+  </div>
+  <div *ngIf="result.scan==0">
     <td style="background-color: red ;"></td>
   </div>
-  <td><button (click)="ListadoDni.splice(i,1);ListadoDni=ListadoDnivalid">eliminar</button></td>
+  <td><button (click)="eliminarPersona(result)">eliminar</button></td>
   </tr>
 </table>
+-->
 <!--
 <table *ngIf="arr.length>0">
   <tr>

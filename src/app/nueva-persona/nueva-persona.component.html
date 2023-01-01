@@ -1,0 +1,35 @@
+<form [formGroup]="nuevaPersona" >
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>Nombre</mat-label>
+      <input matInput placeholder="Nombre" name="usename" formControlName="nombre">
+      <mat-error>
+        <span *ngIf="nuevaPersona.controls['nombre'].hasError('required')">
+          El Nombre es obligatorio
+        </span>
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>DNI</mat-label>
+      <input matInput (keyup)="verificaNumero()" formControlName="dni" type="text" placeholder="inserte dni" name="dni" />
+    <mat-error>
+      <span *ngIf="nuevaPersona.controls['dni'].hasError('required')">
+        El dni es requerido
+      </span>
+      <span *ngIf="nuevaPersona.controls['dni'].hasError('minlength')">
+        El dni debe tener 8 digitos
+      </span>
+      <span *ngIf="nuevaPersona.controls['dni'].hasError('maxlength')">
+        El dni debe tener 8 digitos
+      </span>
+    </mat-error>
+    </mat-form-field>
+    <br>
+    <button mat-raised-button color="primary" [disabled]="!nuevaPersona.valid" (click)="agregarDni()">
+      Agregar persona
+    </button>
+    <button mat-raised-button color="warn" (click)="cancelar()">
+        Cancelar
+    </button>
+  
+  </form>
