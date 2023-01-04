@@ -1,0 +1,95 @@
+<div align="center">
+    PATOVICAPP
+</div>
+<div align="right">
+<button  (click)="cerrarSesion()">cerrar sesion</button>
+</div>
+<button (click)="agregarEvento()">
+    Agregar evento
+</button>
+<h2 *ngIf="!usuarioSinEventos">
+    Aun no posee eventos 
+</h2>
+<div *ngIf="usuarioSinEventos">
+<h3>EVENTOS</h3>
+
+<mat-tab-group  (selectedIndexChange)="cambioDeEvento($event)" animationDuration="1000ms">
+  <mat-tab *ngFor="let result of eventos" label="{{result.evento}}">
+    <h1 align="center">{{result.evento}}
+    </h1>
+
+<br>
+<div align="right">
+  <button  (click)="eliminarEvento()">elimianrEvento</button>
+  </div>
+<h2 style="color: red;" *ngIf="!eventoSinAsistentes">
+  Evento sin asistentes cargados
+</h2>
+<!--<button (click)="test()">jkfdsñfjals</button>-->
+<button mat-raised-button color="primary" (click)="agregarPersona()">Agregar Persona</button>
+<br>
+
+<label>
+  Inserte documento .csv para cargar la tabla de personas formato: nombre,dni
+</label>
+<br>
+<input type="file" accept=".csv" (change)="csv2Array($event)">
+<br>
+<div *ngIf="arr.length>0">
+  <h2>
+    Listado de personas que no se pudieron agregar por estar repetidos
+  </h2>
+<table style="width: 30%;">
+  <tr>
+    <th>Nombre</th>
+    <th>DNI</th>
+  </tr>
+  <tr *ngFor="let persona of arr; let i = index">
+    <td>{{persona.nombre}}</td>
+    <td>{{persona.dni}}</td>
+    <td><button (click)="arr.splice(i,1)" >✅</button></td>
+  </tr>
+</table>
+</div>
+<div *ngIf="eventoSinAsistentes">
+  <div align="center">
+<form>
+  <mat-form-field class="example-full-width" appearance="outline">
+    <mat-label>Buscar</mat-label>
+    <input matInput (keyup)="applyFilter()" placeholder="Buscar por nombre o dni" [formControl]="buscarValue">
+  </mat-form-field>
+
+  <mat-form-field class="example-full-width">
+    <mat-label>Filtro</mat-label>
+    <mat-select (selectionChange)="filtroEscaneadas()" [formControl]="escaneados">
+      <mat-option value="todas">Todas</mat-option>
+      <mat-option value="escaneados">Solo escaneados</mat-option>
+      <mat-option value="sin_escanear">Solo sin escaneados</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>
+</div>
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  <ng-container matColumnDef="nombre">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+    <td mat-cell *matCellDef="let persona"> {{persona.nombre}} </td>
+</ng-container> 
+<ng-container matColumnDef="dni">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> DNI </th>
+  <td mat-cell *matCellDef="let persona"> {{persona.dni}} </td>
+</ng-container> 
+<ng-container matColumnDef="eliminar">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> Eliminar </th>
+  <td mat-cell *matCellDef="let persona"><button mat-raised-button color="warn" (click)="eliminarPersona(persona)">eliminar</button> </td>
+</ng-container> 
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row [ngClass]="{'scaneado': row.scan == 1}" *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table> 
+  <mat-paginator  [pageSizeOptions]="[10, 20, 30]"  showFirstLastButtons  aria-label="select">  </mat-paginator>  
+  
+<button mat-raised-button color="primary"  (click)="scannear()">Scannear</button>
+</div>
+</mat-tab>
+</mat-tab-group>
+</div>

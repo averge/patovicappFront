@@ -1,0 +1,38 @@
+<div align="center">
+<h1>
+    Login
+</h1>
+<form [formGroup]="login">
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>usuario</mat-label>
+      <input matInput placeholder="usuario" name="usename" formControlName="user">
+      <mat-error>
+        <span *ngIf="login.controls['user'].hasError('required')">
+          El user es obligatorio
+        </span>
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>DNI</mat-label>
+      <input matInput formControlName="password" type="password" placeholder="password" name="password" />
+    <mat-error>
+      <span *ngIf="login.controls['password'].hasError('required')">
+        El password es requerido
+      </span>
+    </mat-error>
+    </mat-form-field>
+    <h2 *ngIf="error">
+        Usuario o contraseña incorrectas
+    </h2>
+    <br>
+    <button mat-raised-button color="primary" [disabled]="!login.valid" (click)="ingresar()">
+      ingresar
+    </button>
+    <button mat-raised-button color="secundary"  (click)="register()">
+        Registrarse
+    </button>
+      
+  
+  </form>
+</div>

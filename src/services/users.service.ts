@@ -1,13 +1,14 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
 @Injectable({
   providedIn: 'root'
 })
-export class ListadoService {
+export class UsersService {
+
   //url =  "https://node-vercel-bay.vercel.app/";
-  url="/"
+  //url="/"
+  url="http://localhost:4000/"
   options: any;
   parameters = new HttpHeaders();
   params =  new HttpParams();  
@@ -23,22 +24,13 @@ export class ListadoService {
     };
   }
 
-  listado(){
-    console.log("listado")
-    return this.http.get(this.url+'listado',{headers:this.options});
+  registrar(user:any){
+    console.log("registrar")
+    return this.http.post(this.url+'usuarios/register',user,{headers:this.options});
   }
 
-  agregarPersona(persona:any){
-    return this.http.post(this.url+'listado/add',persona,{headers:this.options});
+  login(user:any){
+    console.log("login")
+    return this.http.post(this.url+'usuarios/login',user,{headers:this.options});
   }
-
-  eliminarPersona(dni:any){
-    console.log(dni)
-    return this.http.post(this.url+'listado/delete',dni);
-  }
-  scanPersona(dni:any): Observable<any>{
-    console.log(dni)
-    return this.http.post<any>(this.url+'listado/scan',dni);
-  }
-
 }

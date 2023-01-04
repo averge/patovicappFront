@@ -17,10 +17,15 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { NuevaPersonaComponent } from './nueva-persona/nueva-persona.component';
 import {MatSortModule} from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
-
+import { AppRoutingModule } from './app-routing.module';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login/login.component';
+import { RegisterComponent } from './login/register/register.component';
+import { NeweventComponent } from './eventos/newevent/newevent.component';
+import {MatTabsModule} from '@angular/material/tabs'
 @NgModule({
-  declarations: [AppComponent, ScannerComponent, NuevaPersonaComponent],
-  imports: [MatSelectModule,MatSortModule,MatPaginatorModule,MatTableModule,HttpClientModule,MatInputModule,ReactiveFormsModule,MatFormFieldModule,MatCardModule,MatButtonModule,MatDialogModule,BrowserModule, ZXingScannerModule, FormsModule, BrowserAnimationsModule],
+  declarations: [AppComponent, ScannerComponent, NuevaPersonaComponent, HomeComponent, LoginComponent, RegisterComponent, NeweventComponent],
+  imports: [MatTabsModule,MatSelectModule,MatSortModule,MatPaginatorModule,MatTableModule,HttpClientModule,MatInputModule,ReactiveFormsModule,MatFormFieldModule,MatCardModule,MatButtonModule,MatDialogModule,BrowserModule, ZXingScannerModule, FormsModule, BrowserAnimationsModule, AppRoutingModule],
   providers: [],
   bootstrap: [AppComponent],
 })

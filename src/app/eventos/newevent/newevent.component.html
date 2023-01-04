@@ -1,0 +1,18 @@
+<form [formGroup]="event">
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>Evento</mat-label>
+      <input matInput placeholder="evento" name="evento" formControlName="evento">
+      <mat-error>
+        <span *ngIf="event.controls['evento'].hasError('required')">
+          El evento es obligatorio
+        </span>
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <button mat-raised-button color="primary" [disabled]="!event.valid" (click)="agregarEvento()">
+        Agregar evento
+      </button>
+      <button mat-raised-button color="warn" (click)="cancelar()">
+          Cancelar
+      </button>
+    </form>

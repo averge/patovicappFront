@@ -1,0 +1,20 @@
+td {
+	border: 1px solid black;
+	padding: 8px;
+}
+.scaneado{
+  background-color: yellow ;
+}
+table{
+    border-collapse: collapse;
+    width: 100%;
+}
+
+thead, th {
+    background-color: lightblue;
+  width: 25%;
+ font-weight: bold;
+ align-items: center;
+ align-content: center;
+ text-align: center;
+}

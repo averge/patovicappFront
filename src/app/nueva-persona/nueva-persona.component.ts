@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { EventosService } from 'src/services/eventos.service';
 import { ListadoService } from 'src/services/listado.service';
 
 @Component({
@@ -18,9 +19,10 @@ export class NuevaPersonaComponent implements OnInit {
   validoNombre=false
   dni:any;
   nombre=null
-  constructor(private servicio: ListadoService,public dialogRef: MatDialogRef<NuevaPersonaComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
+  constructor(private eventoService:EventosService, private servicio: ListadoService,public dialogRef: MatDialogRef<NuevaPersonaComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit(): void {
+    console.log(this.data);
   }
   verificaNombre(){
     this.validoNombre=false
@@ -38,6 +40,22 @@ export class NuevaPersonaComponent implements OnInit {
   }
 
   agregarDni(){
+    console.log(this.data.data)
+    console.log()
+      const asistente={
+        nombre: this.nuevaPersona.controls['nombre'].value,
+        dni: this.nuevaPersona.controls['dni'].value,
+        id_evento: this.data.data.id,
+      }
+      this.eventoService.agregarAsistente(asistente).subscribe(
+        (ret) => {
+          if(ret==0){
+            this.dialogRef.close(true);
+          }else{
+            alert("error la persona ya esta en la lista")
+          }
+        }
+      )
 
       const persona={
         nombre: this.nuevaPersona.controls['nombre'].value,

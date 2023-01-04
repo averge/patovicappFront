@@ -1,0 +1,52 @@
+<div align="center">
+<h1>Registrarse</h1>
+<form [formGroup]="register">
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>usuario</mat-label>
+      <input matInput placeholder="usuario" name="usename" formControlName="user">
+      <mat-error>
+        <span *ngIf="register.controls['user'].hasError('required')">
+          El user es obligatorio
+        </span>
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>password</mat-label>
+      <input matInput formControlName="password" type="password" placeholder="password" name="password" />
+    <mat-error>
+      <span *ngIf="register.controls['password'].hasError('required')">
+        El password es requerido
+      </span>
+    </mat-error>
+    </mat-form-field> <br>
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>email</mat-label>
+      <input matInput formControlName="email" type="email" placeholder="email" name="email" />
+    <mat-error>
+      <span *ngIf="register.controls['email'].hasError('required')">
+        El email es requerido
+      </span>
+    </mat-error>
+    <mat-error>
+        <span *ngIf="register.controls['email'].hasError('email')">
+          El email no tiene un formato valido 
+        </span>
+      </mat-error>
+    </mat-form-field>
+    <h3 *ngIf="error">
+        El usuario ya esta registrado
+    </h3>
+    <br>
+    <button mat-raised-button color="secundary" [disabled]="!register.valid" (click)="save()">
+        Registrarse
+    </button>
+
+    <button mat-raised-button color="primary"  (click)="login()">
+        ingresar
+    </button>
+      
+  
+  </form>
+
+</div>
