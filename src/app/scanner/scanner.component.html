@@ -20,7 +20,12 @@
     (camerasFound)="camerasFoundHandler($event)"
     (scanSuccess)="scanSuccessHandler($event)"
   ></zxing-scanner>
-
+  <mat-form-field class="example-full-width" appearance="outline">
+      <mat-label>DNI</mat-label>
+  <input matInput (keyup)="verificaNumero()" [formControl]="dniNuevo" type="text" placeholder="inserte dni" name="dni" />
+  </mat-form-field>
+  <button mat-raised-button color="primary" [disabled]="!dniNuevo.valid" (click)="scan()">asistir</button>
+  <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
 </mat-card-content>
 </mat-card>
 </div>

@@ -20,8 +20,10 @@ import { EventosService } from 'src/services/eventos.service';
 })
 export class HomeComponent implements OnInit {
 
+  datasources:any[]=[]
   eventoActual:any=null
-
+  personasNoAgregadasPorErrores:any=[]
+  mostrarPersonasConErrores=false
   ListadoDni: any[] = []
   dataSource:any
   //[{dni:"40476372", nombre:"Augusto", scaneado:false},{dni:"40676855", nombre:"Pedro", scaneado:false},{dni:"39786141", nombre:"Fede", scaneado:false},{dni:"39963623", nombre:"Willi", scaneado:false},{dni:"41006154", nombre:"Loren", scaneado:false}];
@@ -47,13 +49,12 @@ export class HomeComponent implements OnInit {
   constructor(private eventosService: EventosService,private activeoute: ActivatedRoute, private router: Router,private cdr: ChangeDetectorRef,private servicio: ListadoService, public dialog: MatDialog) {}
   displayedColumns: string[] = ['nombre', 'dni', 'eliminar'];       
   @ViewChild(MatSort, {static: false}) sort!: MatSort;  
-  @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
-  
+  @ViewChild(MatPaginator, {static:false}) paginator!: MatPaginator;
 ngOnInit() {
-  //this.test();
   this.eventosService.eventosDe(localStorage.getItem("id")).subscribe(
     (data:any)=>{
       if (data.length>0){
+        
         this.usuarioSinEventos=true
         this.eventos=data;
         this.eventoActual=this.eventos[0]
@@ -79,40 +80,40 @@ actualizarEventos(){
   )
 }
 actualizaListaAsistentes(){
-  console.log(this.eventoActual)
   this.eventosService.asistentesde(this.eventoActual.id).subscribe(
+    
     (data:any)=>{
       if(data.length>0){
         this.eventoSinAsistentes=true
-        this.ListadoDni=data
-        this.dataSource = new MatTableDataSource(this.ListadoDni);
-        this.cdr.detectChanges();
-        this.dataSource.paginator = this.paginator
-        this.dataSource.sort = this.sort;
-        this.cdr.detectChanges();
-      }else{
+        this.dataSource = new MatTableDataSource(data);
+        this.at()
+       }else{
         this.eventoSinAsistentes=false
       }
     }
   )
 }
+at(){
+  this.cdr.detectChanges();
+  this.dataSource.paginator = this.paginator
+  this.dataSource.sort = this.sort;
+}
+
 
 cambioDeEvento(any:any){
   this.eventoActual=this.eventos[any]
   this.eventosService.asistentesde(this.eventos[any].id).subscribe(
     (data:any)=>{
+      this.dataSource=null
       if(data.length>0){
         this.eventoSinAsistentes=true
-        this.ListadoDni=data
-        this.dataSource = new MatTableDataSource(this.ListadoDni);
-        this.cdr.detectChanges();
-        this.dataSource.paginator = this.paginator
-        this.dataSource.sort = this.sort;
-        this.cdr.detectChanges();
+        this.dataSource = new MatTableDataSource(data);
+        this.at()
       }else{
         this.eventoSinAsistentes=false
       }
     }
+
   )
   
 
@@ -138,36 +139,34 @@ cambioDeEvento(any:any){
   dialogRef.afterClosed().subscribe(result => {
     console.log(result)
     if (!result === true ) return;
-      const dni = {dni : result}
-      this.servicio.scanPersona(dni).subscribe(
+      const persona={
+        dni: result,
+        id_evento:this.eventoActual.id
+      }
+      console.log(persona)
+      this.eventosService.scanPersona(persona).subscribe(
         (res:any) => {
-          if(res == 1){
-            alert("DNI ya registrado");
-          }else{
-            alert("DNI escaneado correctamente")
-            this.test()
+          if(res == 0){
+            alert("no existe la persona en el evento")
           }
-        }
-      )
-  } );
-}
-applyFilter() {
-  this.dataSource.filter = this.buscarValue.value.trim().toLowerCase();
-  this.cdr.detectChanges();
-      this.dataSource.paginator = this.paginator
-      this.dataSource.sort = this.sort;
-  if (this.dataSource.paginator) {
-    this.dataSource.paginator.firstPage();
+          if(res == 1){
+            alert("La persona ya fue escaneada");
+          }
+          if(res == 2){
+            alert("La persona fue escaneada correctamente")
+            this.actualizaListaAsistentes()
+          }
+        })
+    })
   }
 
-}
-buscar(){
-  let isnum = /^\d+$/.test(this.buscarValue.value);
-  if(isnum){
-    this.ListadoDnivalid = this.ListadoDni.filter(person => person.dni.includes( this.buscarValue.value));
-  }else{
-    this.ListadoDnivalid = this.ListadoDni.filter(person => person.nombre.toUpperCase().includes(this.buscarValue.value.toUpperCase()));
-  }
+
+
+
+
+applyFilter() {
+  this.dataSource.filter = this.buscarValue.value.trim().toLowerCase();
+  this.at()
 }
 
 eliminar(){
@@ -183,19 +182,6 @@ eliminarPersona(persona:any){
         this.actualizaListaAsistentes()
       }
     )
-    /*
-    const dni={
-      dni: persona.dni
-    }
-    this.servicio.eliminarPersona(dni).subscribe(
-      (res:any) => {
-        console.log(res)
-        console.log("eliminado correctamente")
-        alert ("eliminado correctamente")
-        this.test()
-      }
-    )
-    */
   }
   
 
@@ -203,9 +189,7 @@ eliminarPersona(persona:any){
 }
 
 cerrarSesion(){
-
       this.router.navigate(['/login']);
-
 }
 
 agregarEvento(){
@@ -229,9 +213,11 @@ agregarEvento(){
   }
 
 csv2Array(fileInput: any){
+  this.mostrarPersonasConErrores=false
   //read file from input
   const fileReaded = fileInput.target.files[0];
   let error=""
+  var conErrores: any[]=[]
   let reader: FileReader = new FileReader();
   reader.readAsText(fileReaded);
   
@@ -239,68 +225,47 @@ csv2Array(fileInput: any){
    let csv: any = reader.result;
    let allTextLines = csv.split(/\r|\n|\r/);
    let headers = allTextLines[0].split(',');
-
+    let sum=0
   
-    for (let i = 1; i < allTextLines.length; i++) {
+    for (let i = 0; i < allTextLines.length; i++) {
       // split content based on comma
       let data = allTextLines[i].split(',');
       if (data.length === headers.length) {
-        let tarr = {nombre:data[0], dni:data[1], scaneado:false};
-        if(data[1].length!=8){
-          console.log(error)
-          error=error + " El DNI de " + data[0] + " no es valido "+ "\n"
-          console.log(error)
+        let personaNueva = {nombre:data[0], dni:data[1], id_evento:this.eventoActual.id};
+        if(data[1].length!=8 || data[0].length==0){
+          let perosnaConError= {nombre:data[0], dni:data[1], id_evento:this.eventoActual.id, error:"Datos con errores"}
+          this.personasNoAgregadasPorErrores.push(perosnaConError)
+          this.mostrarPersonasConErrores=true
+        }else{
+          this.eventosService.agregarAsistente(personaNueva).subscribe(
+            (res:any) => {
+              if (res==0){
+                sum++
+              }else{
+                let perosnaConError= {nombre:data[0], dni:data[1], id_evento:this.eventoActual.id, error:"Persona ya registrada"}
+                this.personasNoAgregadasPorErrores.push(perosnaConError)
+                this.mostrarPersonasConErrores=true
+              }
+            }
+           )
         }
-        if(data[0].length==0){
-          error=error + " El DNI " + data[1] + " no tiene nombre"+ "\n"
-        }
-       /* for (let j = 0; j < headers.length; j++) {
-          console.log(data[j]);
-          tarr.push(data[j]);
-        }
-        tarr.push(false)
-  */
-       // log each row to see output 
-       var repetidos: any[] =[]
-       this.servicio.agregarPersona(tarr).subscribe(
-        (res:any) => {
-          if(res==0){
-            this.test()
-            alert("Personas agregadas")
-          }else{
-            this.arr.push(res)
-          }
-        }
-       )
+       
     }
    }
+   alert(sum+" personas agregadas a la lista")
+   this.actualizaListaAsistentes()
    if (error!=""){
      alert(error)
      fileInput.target.value = null
    }else{
-   // all rows in the csv file 
-   // this.arr=lines;
-    this.ListadoDnivalid=this.ListadoDni;
+    this.actualizaListaAsistentes()
   }
   } 
   
   }
 
-test(){
-  this.servicio.listado().subscribe((data:any)=>{
-
-    this.ListadoDni=data;
-    this.dataSource = new MatTableDataSource(this.ListadoDni);
-    this.cdr.detectChanges();
-      this.dataSource.paginator = this.paginator
-      this.dataSource.sort = this.sort;
-  }
-  )
-
-}
 
 agregarPersona(){
-  console.log(this.eventoActual)
   const dialogRef = this.dialog.open(NuevaPersonaComponent, {
     disableClose: true,
     
@@ -312,7 +277,6 @@ agregarPersona(){
     if (result){
       alert("nueva persona agregada")
       this.actualizaListaAsistentes()
-      //this.test()
     }
 }
   )}
@@ -320,46 +284,34 @@ agregarPersona(){
 
   filtroEscaneadas(){
     if(this.escaneados.value=="todas"){
-      this.dataSource.data=this.ListadoDni
+      this.actualizaListaAsistentes()
     }
     if(this.escaneados.value=="escaneados"){
-      this.dataSource.data = this.ListadoDni.filter((person:any) => person.scan==1)
+      this.dataSource.data = this.dataSource.data.filter((person:any) => person.scan==1)
     }
     if(this.escaneados.value=="sin_escanear"){
-      this.dataSource.data = this.ListadoDni.filter((person:any) => person.scan==0)
+      this.dataSource.data = this.dataSource.data.filter((person:any) => person.scan==0)
     }
-        this.cdr.detectChanges();
-        this.dataSource.paginator = this.paginator
-        this.dataSource.sort = this.sort;
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.at()
+  }
+  limpiaFiltro(){
+    console.log(this.escaneados)
+    this.escaneados.setValue("todas")
+    this.buscarValue.setValue("")
+    console.log(this.escaneados)
+
+    this.actualizaListaAsistentes()
   }
 
   eliminarEvento(){
-    var e:any
+
     if(confirm(
       "¿Está seguro que desea eliminar el evento " + this.eventoActual.evento + "?"
     )){
       this.eventosService.eliminarEvento(this.eventoActual.id).subscribe(
         (res:any) => {
-          
           alert ("eliminado correctamente")
-          if(this.eventos.length>1){
-            console.log(this.eventos)
-            console.log(this.eventoActual)
-            for (let i=0; this.eventos.length; i++){
-              if(this.eventos[i].id==this.eventoActual.id){
-                e=this.eventos[i-1]
-                this.eventos.splice(i,1)
-
-              }
-           }
-          }
-         this.actualizarEventos()
-         this.cdr.detectChanges();
-          this.eventoActual=e
-         this.actualizaListaAsistentes()
+         window.location.reload()
         }
       )  
   }

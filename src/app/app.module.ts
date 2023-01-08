@@ -23,10 +23,12 @@ import { LoginComponent } from './login/login/login.component';
 import { RegisterComponent } from './login/register/register.component';
 import { NeweventComponent } from './eventos/newevent/newevent.component';
 import {MatTabsModule} from '@angular/material/tabs'
+import { HashLocationStrategy, LocationStrategy } from '@angular/common'
+
 @NgModule({
   declarations: [AppComponent, ScannerComponent, NuevaPersonaComponent, HomeComponent, LoginComponent, RegisterComponent, NeweventComponent],
   imports: [MatTabsModule,MatSelectModule,MatSortModule,MatPaginatorModule,MatTableModule,HttpClientModule,MatInputModule,ReactiveFormsModule,MatFormFieldModule,MatCardModule,MatButtonModule,MatDialogModule,BrowserModule, ZXingScannerModule, FormsModule, BrowserAnimationsModule, AppRoutingModule],
-  providers: [],
+  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

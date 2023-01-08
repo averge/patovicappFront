@@ -13,6 +13,7 @@ export class ScannerComponent implements OnInit {
   ListadoDni: string[] = [];
   public cameras:MediaDeviceInfo[]=[];
   public myDevice!: MediaDeviceInfo;
+  public dniNuevo: FormControl = new FormControl('',[Validators.required, Validators.maxLength(8),Validators.minLength(8)])
   public scannerEnabled=false;
   public results:string[]=[];
   Validado=false
@@ -24,11 +25,16 @@ export class ScannerComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
+  scan(){
+    console.log(this.dniNuevo.value)
+    this.dialogRef.close(this.dniNuevo.value);
+  }
   camerasFoundHandler(cameras: MediaDeviceInfo[]){
     this.cameras=cameras;
     this.selectCamera(this.cameras[0].label);
   }
+
+  
 
   cancelar(){
     this.dialogRef.close();
@@ -42,18 +48,10 @@ export class ScannerComponent implements OnInit {
     
   }
 
-  agregarDni(){
-    this.ListadoDni.push(this.dni);
-    this.Validado=false;
-    this.dni=null
-  }
+
 
   verificaNumero(){
-    this.Validado=false
-    this.dni=this.dni.replace(/\D/g, "")
-    if(this.dni.length==8){
-      this.Validado=true;
-    }
+    this.dniNuevo.setValue(this.dniNuevo.value.replace(/\D/g, ""))
   }
 
   selectCamera(cameraLabel: string){    

@@ -6,9 +6,9 @@ import { Observable } from 'rxjs';
 })
 export class UsersService {
 
-  //url =  "https://node-vercel-bay.vercel.app/";
+  url =  "https://node-vercel-bay.vercel.app/";
   //url="/"
-  url="http://localhost:4000/"
+  //url="http://localhost:4000/"
   options: any;
   parameters = new HttpHeaders();
   params =  new HttpParams();  

@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ListadoService {
-  //url =  "https://node-vercel-bay.vercel.app/";
-  url="/"
+  url =  "https://node-vercel-bay.vercel.app/";
+  //url="/"
   options: any;
   parameters = new HttpHeaders();
   params =  new HttpParams();  

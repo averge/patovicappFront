@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
 })
 export class EventosService {
 
- //url =  "https://node-vercel-bay.vercel.app/";
- url="http://localhost:4000/"
+ url =  "https://node-vercel-bay.vercel.app/";
+ //url="http://localhost:4000/"
 
  //url="/"
  options: any;
@@ -56,5 +56,9 @@ export class EventosService {
   eliminarEvento(evento:any){
     const id_evento={id_evento:evento}
     return this.http.post(this.url+'eventos/delete',id_evento,{headers:this.options});
+  }
+
+  scanPersona(persona:any){
+    return this.http.post(this.url+'asistente/scan',persona,{headers:this.options});
   }
 }

@@ -40,8 +40,6 @@ export class NuevaPersonaComponent implements OnInit {
   }
 
   agregarDni(){
-    console.log(this.data.data)
-    console.log()
       const asistente={
         nombre: this.nuevaPersona.controls['nombre'].value,
         dni: this.nuevaPersona.controls['dni'].value,
@@ -56,7 +54,7 @@ export class NuevaPersonaComponent implements OnInit {
           }
         }
       )
-
+/*
       const persona={
         nombre: this.nuevaPersona.controls['nombre'].value,
         dni: this.nuevaPersona.controls['dni'].value
@@ -71,6 +69,7 @@ export class NuevaPersonaComponent implements OnInit {
         }
       )
     
-  }
+  */
+}
 
 }
