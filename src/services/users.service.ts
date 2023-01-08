@@ -33,4 +33,9 @@ export class UsersService {
     console.log("login")
     return this.http.post(this.url+'usuarios/login',user,{headers:this.options});
   }
+
+  getUser(id:any){
+    const data ={id:id}
+    return this.http.post(this.url+'usuarios/getUser',data,{headers:this.options});
+  }
 }
